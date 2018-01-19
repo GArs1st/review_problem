@@ -1,28 +1,30 @@
 #include <iostream>
 #include <memory>
 
+template <typename T>
 class Node{
  public:
-    int val;
-    std::shared_ptr<Node> next;
+    T val;
+    std::shared_ptr<Node<T>> next;
 
-    Node(int val) : val(val) {}
+    Node() {}
+
+    Node(T val) : val(val) {}
 };
 
+template <typename T>
 class List{
  public:
     List() {
-        first = last = NULL;
+        first = std::make_shared<Node<T>>();
+        last = first;
         sz = 0;
     }
 
     void push_back(int val) {
-        if (empty()) {
-            first = last = std::make_shared<Node>(val);
-        } else {
-            last->next = std::make_shared<Node>(val);
-            last = last->next;
-        }
+        last->val = val;
+        last->next = std::make_shared<Node<T>>();
+        last = last->next;
 
         ++sz;
     }
@@ -31,23 +33,27 @@ class List{
         return sz;
     }
 
-    bool empty() {
-        return (size() == 0);
+    bool empty() const {
+        return size() == 0;
     }
 
-    List splitBy(int ind) {
-        List list1, list2;
+    List<T> splitBy(int ind) {
+        List<T> rightPart;
         int i = 0;
         for (auto it = begin(); it != end(); ++it, ++i) {
-            if (i < ind) {
-                list1.push_back(*it);
-            } else {
-                list2.push_back(*it);
+            if (i + 1 == ind) {
+                rightPart.first = it.getNode()->next;
+                rightPart.last = last;
+                rightPart.sz = size() - ind;
+
+                sz = ind;
+                last = std::make_shared<Node<T>>();
+                it.getNode()->next = last;
+                break;
             }
         }
 
-        *this = list1;
-        return list2;
+        return rightPart;
     }
 
     class Iterator{
@@ -56,8 +62,12 @@ class List{
             now = NULL;
         }
 
-        Iterator(const std::shared_ptr<Node>& ptr) {
+        Iterator(const std::shared_ptr<Node<T>>& ptr) {
             now = ptr;
+        }
+
+        std::shared_ptr<Node<T>> getNode() {
+            return now;
         }
 
         bool operator == (const Iterator& other) const {
@@ -84,7 +94,7 @@ class List{
         }
 
      private:
-        std::shared_ptr<Node> now;
+        std::shared_ptr<Node<T>> now;
     };
 
     Iterator begin() const {
@@ -92,20 +102,21 @@ class List{
     }
 
     Iterator end() const {
-        return Iterator();
+        return Iterator(last);
     }
 
  private:
-    std::shared_ptr<Node> first, last;
+    std::shared_ptr<Node<T>> first;
+    std::shared_ptr<Node<T>> last;
     size_t sz;
 };
 
-List merge(const List& list1, const List& list2) {
+List<int> merge(const List<int>& list1, const List<int>& list2) {
     auto it1 = list1.begin(), it2 = list2.begin();
-    List list;
+    List<int> list;
 
-    while (it1 != list1.end() || it2 != list2.end()) {
-        if (it2 == list2.end() || (it1 != list1.end() && *it1 < *it2)) {
+    while (it1 != list1.end() && it2 != list2.end()) {
+        if (*it1 < *it2) {
             list.push_back(*it1);
             ++it1;
         } else {
@@ -114,35 +125,43 @@ List merge(const List& list1, const List& list2) {
         }
     }
 
+    for (; it1 != list1.end(); ++it1) {
+        list.push_back(*it1);
+    }
+
+    for (; it2 != list2.end(); ++it2) {
+        list.push_back(*it2);
+    }
+
     return list;
 }
 
-void mergeSort(List& list) {
-    if (list.size() <= 1) return;
+void mergeSort(List<int>& list1) {
+    if (list1.size() <= 1) return;
 
-    int m = list.size() / 2;
-    List list2 = list.splitBy(m);
-    mergeSort(list);
+    int m = list1.size() / 2;
+    List<int> list2 = list1.splitBy(m);
+    mergeSort(list1);
     mergeSort(list2);
 
-    list = merge(list, list2);
+    list1 = merge(list1, list2);
 }
 
 int main() {
-    int n;
-    std::cin >> n;
+    int listSize;
+    std::cin >> listSize;
 
-    List a;
+    List<int> list;
 
-    for (int i = 0; i < n; ++i) {
-        int tmp;
-        std::cin >> tmp;
-        a.push_back(tmp);
+    for (int i = 0; i < listSize; ++i) {
+        int num;
+        std::cin >> num;
+        list.push_back(num);
     }
 
-    mergeSort(a);
+    mergeSort(list);
 
-    for (auto it = a.begin(); it != a.end(); ++it) {
+    for (auto it = list.begin(); it != list.end(); ++it) {
         std::cout << (*it) << " ";
     }
     std::cout << "\n";
