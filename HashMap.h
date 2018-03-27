@@ -24,13 +24,8 @@ class HashMap {
     }
 
     HashMap(const std::initializer_list<std::pair<const KeyType, ValueType>>& items,
-            const Hash& hasher = Hash())
-            : hasher(hasher) {
-        clear();
-
-        for (auto item : items) {
-            insert(item);
-        }
+            const Hash& hasher = Hash()) {
+        HashMap(items.begin(), items.end(), hasher);
     }
 
     void insert(const std::pair<const KeyType, ValueType>& item) {
@@ -258,7 +253,7 @@ class HashMap {
     size_t sz;
     std::vector<std::list<std::pair<const KeyType, ValueType>>> data;
     Hash hasher;
-    double LOAD_FACTOR_THRESHOLD = 0.75;
-    int START_SIZE = 1;
+    static constexpr double LOAD_FACTOR_THRESHOLD = 0.75;
+    static constexpr int START_SIZE = 1;
 };
 
