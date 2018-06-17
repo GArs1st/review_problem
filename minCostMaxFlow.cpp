@@ -7,18 +7,18 @@
 
 const int INF = 1e9;
 
-struct Edge{
-    int from;
-    int to;
-    int flow;
-    int capacity;
-    int cost;
-    size_t id;
+struct Edge {
+    int from = 0;
+    int to = 0;
+    int flow = 0;
+    int capacity = 0;
+    int cost = 0;
+    size_t id = 0;
 };
 
-class Graph{
+class Graph {
  public:
-    Graph() {}
+    Graph() = default;
 
     Graph(int n) {
         links.resize(n);
@@ -65,9 +65,9 @@ class Graph{
     std::vector<Edge> edges;
 };
 
-class PDistance{
+class PDistance {
  public:
-    PDistance() {}
+    PDistance() = default;
 
     PDistance(int n, int s = 0, int val = INF) {
         dist.resize(n, val);
