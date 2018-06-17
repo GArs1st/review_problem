@@ -1,11 +1,12 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <set>
 #include <utility>
 #include <vector>
 
-const int INF = 1e9;
+static constexpr int INF = std::numeric_limits<int>::max();
 
 struct Edge {
     int from = 0;
